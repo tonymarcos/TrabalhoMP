@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inteligência artificial e práticas de estudo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topo">
+  <p class="marca"><img class="logo" src="favicon.svg" alt="" width="44" height="44"><span>Metodologia de Pesquisa, UFOP</span></p>
+  <h1 id="titulo"></h1>
+  <p id="descricao" class="lead"></p>
+  <dl class="proj" id="proj"></dl>
+  <ol class="fluxo" aria-label="Etapas da pesquisa"><li>Problema</li><li>Pergunta</li><li>Objetivo</li><li>Método</li><li>Coleta de dados</li><li class="on">Análise</li><li>Conclusão</li></ol>
+  <p id="coleta" class="meta"></p>
+  <nav id="indice" class="indice" aria-label="Seções"></nav>
+</header>
+<nav class="filtros" id="filtros" aria-label="Filtros"></nav>
+<main id="conteudo"></main>
+<footer>
+  <label class="arq">Testar com um CSV exportado da planilha: <input type="file" id="arq" accept=".csv,text/csv"></label>
+  <p>Os gráficos usam somente as respostas da planilha conectada em <code>config.js</code>. Nenhum dado é inventado.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
