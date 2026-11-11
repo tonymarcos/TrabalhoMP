@@ -202,10 +202,9 @@ function construir() {
   }).join("")}</div></section>`).join("");
   $("#conteudo").innerHTML = `<section><h2>Visão geral</h2><dl class="ind" id="ind"></dl><p class="conf" id="conf"></p><div class="destaques"><h3>O que chama atenção<small>Gerado automaticamente a partir das respostas e dos filtros</small></h3><ul id="leit"></ul></div><p class="intro">Cada indicador mostra seu próprio denominador (n), porque nem todas as pessoas responderam a todas as perguntas. Em "rotina melhorou" ficam de fora quem não usava IA antes; em "avaliação positiva", quem não usa IA ou não tem opinião.</p></section><section id="perguntas"><h2>Perguntas que a pesquisa responde</h2><p class="intro">Respostas diretas às perguntas que guiaram a análise. Acompanham os filtros; confira o n em cada gráfico.</p><ol class="perg" id="perg"></ol></section>${html}
   <section id="analise"><h2>Estatísticas descritivas</h2><p class="intro">As respostas em escala viram pontos de 1 a 5 (da menor para a maior intensidade ou concordância). Se média e mediana estão próximas, as respostas se distribuem de forma equilibrada; o desvio-padrão mostra o quanto as pessoas divergem.</p><div class="tabela" id="desc"></div></section>
-  <section id="grupos"><h2>Comparação de grupos</h2><p class="intro">Como na análise de uso acadêmico × entretenimento da aula, separamos os participantes em dois grupos e comparamos as médias.</p><div class="tabela" id="grp"></div><p class="obs" id="obs"></p></section>
-  <section id="conclusoes"><h2>Conclusões</h2><div class="concl"><div class="cc a"><h3>Conclusões da pesquisa</h3><ul id="conc">${CONCLUSOES.length ? CONCLUSOES.map(c => `<li>${c}</li>`).join("") : "<li>Ainda não escritas. Depois de analisar os dados, adicione as frases em <code>CONCLUSOES</code>, no <code>config.js</code>.</li>"}</ul></div><div class="cc"><h3>Limitações</h3><ul>${LIMITACOES.map(c => `<li>${c}</li>`).join("")}</ul></div></div></section>`;
+  <section id="grupos"><h2>Comparação de grupos</h2><p class="intro">Como na análise de uso acadêmico × entretenimento da aula, separamos os participantes em dois grupos e comparamos as médias.</p><div class="tabela" id="grp"></div><p class="obs" id="obs"></p></section>`;
   $("#conteudo").querySelectorAll("[data-e]").forEach(s => s.onchange = () => { S[s.dataset.e] = s.value; render(); });
-  $("#indice").innerHTML = [["perguntas", "Perguntas respondidas"], ...SEC.map((s, n) => ["s" + n, s.t]), ["analise", "Estatísticas"], ["grupos", "Grupos"], ["conclusoes", "Conclusões"]].map(([i, t]) => `<a href="#${i}">${t}</a>`).join("");
+  $("#indice").innerHTML = [["perguntas", "Perguntas respondidas"], ...SEC.map((s, n) => ["s" + n, s.t]), ["analise", "Estatísticas"], ["grupos", "Grupos"]].map(([i, t]) => `<a href="#${i}">${t}</a>`).join("");
   $("#conteudo").querySelectorAll(".png").forEach(b => b.onclick = () => {
     const a = document.createElement("a"); a.href = charts[b.dataset.id].toBase64Image("image/png", 1); a.download = "grafico-" + b.dataset.id + ".png"; a.click();
   });
@@ -214,9 +213,9 @@ function construir() {
 }
 function indicadores(rows) {
   const p = (q, ok, ex = []) => {
-    const calc = R => { const v = R.filter(r => r[q] && !ex.includes(r[q])); const k = v.filter(r => ok === "melhorou" ? r[q].startsWith("Melhorou") : ok.includes(r[q])).length; return { n: v.length, x: v.length ? 100 * k / v.length : 0 }; };
+    const calc = R => { const v = R.filter(r => r[q] && !ex.includes(r[q])); const k = v.filter(r => ok === "melhorou" ? r[q].startsWith("Melhorou") : ok.includes(r[q])).length; return { k, n: v.length, x: v.length ? 100 * k / v.length : 0 }; };
     const a = calc(rows), g = calc(TODOS);
-    return a.n ? [pt(a.x) + "%", `n = ${a.n}` + (rows.length < TODOS.length ? `; geral ${pt(g.x)}%` : "")] : ["–", "sem dados"];
+    return a.n ? [pt(a.x) + "%", `${a.k} de ${a.n}` + (rows.length < TODOS.length ? `; geral ${pt(g.x)}%` : "")] : ["–", "sem dados"];
   };
   const L = [
     ["Respostas no filtro", [rows.length, `de ${TODOS.length} no total`]],
@@ -245,7 +244,6 @@ function leituras(rows) {
   if (al.length >= 5) L.push(`Entre quem usa IA com frequência para resolver exercícios (n = ${al.length}), ${pc(al.filter(x => ["Nunca", "Raramente"].includes(x.q9)).length, al.length)} raramente ou nunca confere as respostas.`);
   if (rows.length < 50) L.push(`Amostra pequena (${rows.length} respostas no filtro): leia os percentuais como tendências, não como regra.`);
   $("#leit").innerHTML = L.map(x => `<li>${x}</li>`).join("");
-  if (!CONCLUSOES.length) $("#conc").innerHTML = L.slice(0, 3).map(x => `<li>${x}</li>`).join("") + '<li class="nota">Síntese automática. Escreva as suas em CONCLUSOES, no config.js.</li>';
 }
 const cres = (v, o) => { const i = o.indexOf(v); return v && i >= 0 ? i + 1 : null; };
 const ord = (v, o) => { const i = o.indexOf(v); return v && i >= 0 && i <= 4 ? 5 - i : null; };
@@ -306,7 +304,7 @@ function grupos(rows) {
   $("#grp").innerHTML = `<table class="tab"><thead><tr><th>Grupo</th><th>Nº de estudantes</th><th>Avaliação média (1 a 5)</th><th>Conferem com frequência</th></tr></thead><tbody>${lin("A: uso frequente (todos os dias ou várias vezes por semana)", A)}${lin("B: uso ocasional (uma vez por semana ou menos)", B)}</tbody></table>`;
   const a = av(A), c = av(B);
   $("#obs").innerHTML = a && c && a.n >= 3 && c.n >= 3
-    ? `<b>Observar:</b> os participantes com uso mais frequente (Grupo A) apresentaram, nesta amostra, avaliação média ${Math.abs(a.m - c.m) < .1 ? "semelhante à" : a.m > c.m ? "superior à" : "inferior à"} dos participantes com uso ocasional (Grupo B): ${p2(a.m)} contra ${p2(c.m)}.<br><b>Mas não escrever:</b> "usar IA com mais frequência causa uma avaliação melhor (ou pior)". A primeira frase descreve uma associação observada; a segunda afirmaria uma causalidade que o estudo não demonstrou.`
+    ? `<b>Observar:</b> os participantes com uso mais frequente (Grupo A) apresentaram, nesta amostra, avaliação média ${Math.abs(a.m - c.m) < .1 ? "semelhante à" : a.m > c.m ? "superior à" : "inferior à"} dos participantes com uso ocasional (Grupo B): ${p2(a.m)} contra ${p2(c.m)}. Trata-se de uma associação observada, não de causa e efeito.`
     : "Grupos pequenos demais para comparar (são necessárias ao menos 3 pessoas com avaliação em cada grupo).";
 }
 function listaPerguntas(rows) {
@@ -371,12 +369,12 @@ function iniciar(tab, erro, manter) {
 }
 async function boot() {
   $("#titulo").textContent = PESQUISA.titulo; $("#descricao").textContent = PESQUISA.descricao;
-  $("#proj").innerHTML = [["Pergunta de pesquisa", PESQUISA.pergunta], ["Objetivo", PESQUISA.objetivo], ["Método", PESQUISA.metodo]].map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join("");
+  $("#proj").innerHTML = [["Pergunta de pesquisa", PESQUISA.pergunta], ["Hipótese", PESQUISA.hipotese], ["Objetivo", PESQUISA.objetivo], ["Método", PESQUISA.metodo]].map(([t, d]) => `<div><dt>${t}</dt><dd>${d}</dd></div>`).join("");
   Chart.defaults.font.family = "'Public Sans', system-ui, sans-serif"; Chart.defaults.font.size = window.innerWidth < 720 ? 12 : 14; Chart.defaults.color = "#2B2929";
   Chart.defaults.elements.bar.borderRadius = 2;
   Object.assign(Chart.defaults.plugins.tooltip, { backgroundColor: "#3A3838", padding: 10, cornerRadius: 4, boxPadding: 4, titleFont: { size: 14, weight: "600" }, bodyFont: { size: 14 } });
   Object.assign(Chart.defaults.plugins.legend.labels, { usePointStyle: true, pointStyle: "rectRounded" });
-  $("#arq").onchange = async e => { const f = e.target.files[0]; if (f) { ULTIMA = null; iniciar(parseCSV(await f.text())); } };
+  if ($("#arq")) $("#arq").onchange = async e => { const f = e.target.files[0]; if (f) { ULTIMA = null; iniciar(parseCSV(await f.text())); } };
   if (!API_URL) return iniciar(null);
   const carregar = async manter => {
     if (ULTIMA === null) return;
