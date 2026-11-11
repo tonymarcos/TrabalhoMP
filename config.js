@@ -1,32 +1,19 @@
-// Único arquivo que você precisa editar.
-// API_URL: endereço do Google Apps Script (implantado para "Qualquer pessoa") que devolve as respostas em JSON.
-// Também aceita o link de uma planilha publicada como CSV. Vazio = o site pede um CSV manualmente.
 const API_URL = "https://script.google.com/macros/s/AKfycbxWfIp7kCSRHq89YysevQRLs6IiecdxdyYHmRu0jxP8iqf9nJPfCZWDdDKv1cOmmQI/exec";
-const ATUALIZAR_A_CADA = 30; // segundos entre atualizações automáticas; 0 desliga
+const ATUALIZAR_A_CADA = 0; // segundos entre atualizações automáticas; 0 = desligado
 
 const PESQUISA = {
   titulo: "Inteligência artificial e práticas de estudo",
   descricao: "Levantamento sobre como estudantes universitários usam ferramentas de IA nos estudos: com que frequência, para quê, com que cuidado de verificação e com que percepção de benefícios e riscos.",
-  pergunta: "Como estudantes universitários usam IA nos estudos e como percebem seus benefícios e riscos?",
+  pergunta: "Existe relação entre o tempo dedicado ao uso de IA e a forma como os estudantes desenvolvem suas práticas de estudo?",
+  hipotese: "Quem usa IA com mais frequência percebe mais facilidade para compreender conteúdos, tirar dúvidas e fazer atividades, e mais produtividade.",
   objetivo: "Descrever frequência, finalidade e conferência das respostas da IA, e comparar a percepção entre grupos de uso.",
   metodo: "Questionário online (Google Forms) com 15 perguntas, respondido por estudantes (amostra por conveniência).",
 };
-
-// Escreva aqui as conclusões depois de analisar os dados reais.
-const CONCLUSOES = [];
-const LIMITACOES = [
-  "Amostra por conveniência: os resultados descrevem quem respondeu, não toda a população estudantil.",
-  "Respostas autodeclaradas: frequência de uso e hábito de conferência podem ser superestimados ou subestimados.",
-  "Associações entre perguntas não indicam causa e efeito.",
-  "Grupos com poucas respostas geram percentuais instáveis; consulte sempre o n indicado.",
-];
 
 const FREQ = ["Nunca", "Raramente", "Às vezes", "Frequentemente", "Sempre"];
 const CONC = ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"];
 const SN = ["Sim", "Não"];
 
-// match: trecho do cabeçalho da coluna na planilha (sem diferenciar acentos/maiúsculas).
-// order: ordem das categorias. multi: múltipla escolha. open: resposta livre.
 const Q = [
   { id: "q1", s: "Curso", match: "seu curso", open: true, t: "Qual é o seu curso?" },
   { id: "q2", s: "Período", match: "período/semestre", order: ["1º", "2º", "3º", "4º", "5º", "6º", "7º", "8º", "9º ou mais"], t: "Em qual período/semestre você está?" },
@@ -44,7 +31,6 @@ const Q = [
   { id: "q14", s: "Avaliação geral", match: "de modo geral", order: ["Muito positivo", "Positivo", "Neutro", "Negativo", "Muito negativo", "Não tenho opinião formada", "Não utilizo Inteligência Artificial para estudar"], t: "Avaliação geral do uso de IA como apoio aos estudos" },
 ];
 
-// Pergunta 10 (grade de concordância): um trecho por coluna.
 const LIK = [
   { match: "Facilita a compreensão", label: "Facilita a compreensão dos conteúdos" },
   { match: "esclarecer minhas dúvidas", label: "Ajuda a esclarecer minhas dúvidas" },
